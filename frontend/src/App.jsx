@@ -10,6 +10,7 @@ import ApplyPage from './pages/student/ApplyPage';
 import MyApplications from './pages/student/MyApplications';
 import RaiseQuery from './pages/student/RaiseQuery';
 import MyQueries from './pages/student/MyQueries';
+import GiveFeedback from './pages/student/GiveFeedback';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ManageColleges from './pages/admin/ManageColleges';
 import ViewApplications from './pages/admin/ViewApplications';
@@ -40,6 +41,7 @@ function App() {
               <Route path="/student/applications" element={<ProtectedRoute roles={['STUDENT']}><MyApplications /></ProtectedRoute>} />
               <Route path="/student/raise-query" element={<ProtectedRoute roles={['STUDENT']}><RaiseQuery /></ProtectedRoute>} />
               <Route path="/student/queries" element={<ProtectedRoute roles={['STUDENT']}><MyQueries /></ProtectedRoute>} />
+              <Route path="/student/feedback" element={<ProtectedRoute roles={['STUDENT']}><GiveFeedback /></ProtectedRoute>} />
 
               {/* Admin Routes */}
               <Route path="/admin/dashboard" element={<ProtectedRoute roles={['ADMIN']}><AdminDashboard /></ProtectedRoute>} />
