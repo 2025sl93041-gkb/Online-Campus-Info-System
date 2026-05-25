@@ -6,8 +6,11 @@ import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import StudentDashboard from './pages/student/StudentDashboard';
+import ApplyPage from './pages/student/ApplyPage';
+import MyApplications from './pages/student/MyApplications';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ManageColleges from './pages/admin/ManageColleges';
+import ViewApplications from './pages/admin/ViewApplications';
 import CounsellorDashboard from './pages/counsellor/CounsellorDashboard';
 import BrowseColleges from './pages/BrowseColleges';
 import CollegeDetailPage from './pages/CollegeDetailPage';
@@ -26,12 +29,32 @@ function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
 
+              {/* College Routes (Public) */}
+              <Route path="/colleges" element={<BrowseColleges />} />
+              <Route path="/colleges/:id" element={<CollegeDetailPage />} />
+
               {/* Student Routes */}
               <Route
                 path="/student/dashboard"
                 element={
                   <ProtectedRoute roles={['STUDENT']}>
                     <StudentDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/student/apply/:collegeId"
+                element={
+                  <ProtectedRoute roles={['STUDENT']}>
+                    <ApplyPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/student/applications"
+                element={
+                  <ProtectedRoute roles={['STUDENT']}>
+                    <MyApplications />
                   </ProtectedRoute>
                 }
               />
@@ -45,13 +68,19 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
-              {/* Admin - Manage Colleges */}
               <Route
                 path="/admin/colleges"
                 element={
                   <ProtectedRoute roles={['ADMIN']}>
                     <ManageColleges />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/applications"
+                element={
+                  <ProtectedRoute roles={['ADMIN']}>
+                    <ViewApplications />
                   </ProtectedRoute>
                 }
               />
@@ -65,10 +94,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
-              {/* College Routes (Public) */}
-              <Route path="/colleges" element={<BrowseColleges />} />
-              <Route path="/colleges/:id" element={<CollegeDetailPage />} />
 
               {/* Fallback */}
               <Route path="*" element={<div className="not-found"><h2>404 - Page Not Found</h2></div>} />

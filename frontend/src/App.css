@@ -592,6 +592,92 @@ body {
   color: #666;
 }
 
+/* Applications */
+.applications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.application-card {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.application-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.application-header h3 {
+  color: #333;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-pending {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.status-review {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.status-accepted {
+  background: #e8f5e9;
+  color: #388e3c;
+}
+
+.status-rejected {
+  background: #ffebee;
+  color: #d32f2f;
+}
+
+.application-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #eee;
+}
+
+.btn-accept {
+  background: #388e3c;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.success-msg {
+  background: #e8f5e9;
+  color: #388e3c;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.filter-bar {
+  margin-bottom: 20px;
+  max-width: 400px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .navbar {
