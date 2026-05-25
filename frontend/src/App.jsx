@@ -18,6 +18,7 @@ import CounsellorDashboard from './pages/counsellor/CounsellorDashboard';
 import ViewQueries from './pages/counsellor/ViewQueries';
 import BrowseColleges from './pages/BrowseColleges';
 import CollegeDetailPage from './pages/CollegeDetailPage';
+import ReportsPage from './pages/ReportsPage';
 import './App.css';
 
 function App() {
@@ -51,6 +52,9 @@ function App() {
               {/* Counsellor Routes */}
               <Route path="/counsellor/dashboard" element={<ProtectedRoute roles={['COUNSELLOR']}><CounsellorDashboard /></ProtectedRoute>} />
               <Route path="/counsellor/queries" element={<ProtectedRoute roles={['COUNSELLOR']}><ViewQueries /></ProtectedRoute>} />
+
+              {/* Reports (accessible to all authenticated users) */}
+              <Route path="/reports" element={<ProtectedRoute roles={['STUDENT', 'ADMIN', 'COUNSELLOR']}><ReportsPage /></ProtectedRoute>} />
 
               {/* Fallback */}
               <Route path="*" element={<div className="not-found"><h2>404 - Page Not Found</h2></div>} />

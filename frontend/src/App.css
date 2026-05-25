@@ -771,6 +771,109 @@ body {
   color: #1976d2;
 }
 
+/* Reports */
+.reports-page h1 {
+  margin-bottom: 24px;
+}
+
+.report-section {
+  margin-bottom: 32px;
+}
+
+.report-section h2 {
+  margin-bottom: 16px;
+  color: #333;
+  border-bottom: 2px solid #1976d2;
+  padding-bottom: 8px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.stat-card .stat-number {
+  display: block;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #1976d2;
+}
+
+.stat-card .stat-label {
+  display: block;
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 4px;
+}
+
+.stat-card.stat-accepted .stat-number { color: #388e3c; }
+.stat-card.stat-pending .stat-number { color: #f57c00; }
+.stat-card.stat-rejected .stat-number { color: #d32f2f; }
+
+.rating-badge {
+  background: #fff8e1;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.bar-chart {
+  margin-top: 20px;
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.bar-chart h3 {
+  margin-bottom: 12px;
+  color: #333;
+}
+
+.bar-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 12px;
+}
+
+.bar-label {
+  min-width: 150px;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.bar-container {
+  flex: 1;
+  background: #e3f2fd;
+  border-radius: 4px;
+  height: 28px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #1976d2, #42a5f5);
+  color: white;
+  display: flex;
+  align-items: center;
+  padding-left: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: 4px;
+  min-width: 30px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .navbar {
