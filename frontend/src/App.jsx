@@ -7,7 +7,10 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import StudentDashboard from './pages/student/StudentDashboard';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import ManageColleges from './pages/admin/ManageColleges';
 import CounsellorDashboard from './pages/counsellor/CounsellorDashboard';
+import BrowseColleges from './pages/BrowseColleges';
+import CollegeDetailPage from './pages/CollegeDetailPage';
 import './App.css';
 
 function App() {
@@ -43,6 +46,16 @@ function App() {
                 }
               />
 
+              {/* Admin - Manage Colleges */}
+              <Route
+                path="/admin/colleges"
+                element={
+                  <ProtectedRoute roles={['ADMIN']}>
+                    <ManageColleges />
+                  </ProtectedRoute>
+                }
+              />
+
               {/* Counsellor Routes */}
               <Route
                 path="/counsellor/dashboard"
@@ -52,6 +65,10 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+
+              {/* College Routes (Public) */}
+              <Route path="/colleges" element={<BrowseColleges />} />
+              <Route path="/colleges/:id" element={<CollegeDetailPage />} />
 
               {/* Fallback */}
               <Route path="*" element={<div className="not-found"><h2>404 - Page Not Found</h2></div>} />
