@@ -1,4 +1,5 @@
 import { useAuth } from '../../context/AuthContext';
+import { Link } from 'react-router-dom';
 
 const CounsellorDashboard = () => {
   const { user } = useAuth();
@@ -8,18 +9,14 @@ const CounsellorDashboard = () => {
       <h1>Counsellor Dashboard</h1>
       <p>Welcome, {user?.name}!</p>
       <div className="dashboard-grid">
-        <div className="dashboard-card">
+        <Link to="/counsellor/queries" className="dashboard-card">
           <h3>💬 View Queries</h3>
           <p>Respond to student queries</p>
-        </div>
-        <div className="dashboard-card">
-          <h3>✅ Resolved Queries</h3>
-          <p>View your resolved queries</p>
-        </div>
-        <div className="dashboard-card">
-          <h3>⭐ My Ratings</h3>
-          <p>View student feedback about you</p>
-        </div>
+        </Link>
+        <Link to="/reports" className="dashboard-card">
+          <h3>📊 Reports</h3>
+          <p>View feedback and statistics</p>
+        </Link>
       </div>
     </div>
   );

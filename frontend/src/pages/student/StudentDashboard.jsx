@@ -13,18 +13,22 @@ const StudentDashboard = () => {
           <h3>📚 Browse Colleges</h3>
           <p>Explore colleges and courses</p>
         </Link>
-        <div className="dashboard-card">
+        <Link to="/student/applications" className="dashboard-card">
           <h3>📝 My Applications</h3>
           <p>Track your applications</p>
-        </div>
-        <div className="dashboard-card">
+        </Link>
+        <Link to="/student/queries" className="dashboard-card">
           <h3>💬 My Queries</h3>
           <p>View and raise queries</p>
-        </div>
-        <div className="dashboard-card">
+        </Link>
+        <Link to="/student/feedback" className="dashboard-card">
           <h3>⭐ Feedback</h3>
           <p>Rate colleges and counsellors</p>
-        </div>
+        </Link>
+        <Link to="/reports" className="dashboard-card">
+          <h3>📊 Reports</h3>
+          <p>Compare colleges</p>
+        </Link>
       </div>
     </div>
   );
