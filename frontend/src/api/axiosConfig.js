@@ -23,14 +23,13 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor - handle auth errors
+// Response interceptor - handle auth errors (don't redirect, just clear token)
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/login';
     }
     return Promise.reject(error);
   }
