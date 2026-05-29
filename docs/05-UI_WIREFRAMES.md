@@ -86,6 +86,11 @@
 
 ## 2. Login Page
 
+![Login Page Wireframe](diagrams/ui_02_login.png)
+
+<details>
+<summary>Text representation</summary>
+
 ```
 +------------------------------------------------------------------+
 |  [Logo] Online Campus Info System                    [Home]        |
@@ -110,9 +115,16 @@
 +------------------------------------------------------------------+
 ```
 
+</details>
+
 ---
 
 ## 3. Registration Page
+
+![Registration Page Wireframe](diagrams/ui_03_register.png)
+
+<details>
+<summary>Text representation</summary>
 
 ```
 +------------------------------------------------------------------+
@@ -148,6 +160,8 @@
 |                                                                    |
 +------------------------------------------------------------------+
 ```
+
+</details>
 
 ---
 
@@ -188,6 +202,11 @@
 
 ## 5. Browse Colleges Page (Student)
 
+![Browse Colleges Wireframe](diagrams/ui_05_browse_colleges.png)
+
+<details>
+<summary>Text representation</summary>
+
 ```
 +------------------------------------------------------------------+
 |  [Logo]  Online Campus Info       Welcome, John!  [Logout]        |
@@ -217,9 +236,16 @@
 +------------------------------------------------------------------+
 ```
 
+</details>
+
 ---
 
 ## 6. College Detail Page
+
+![College Detail Wireframe](diagrams/ui_06_college_detail.png)
+
+<details>
+<summary>Text representation</summary>
 
 ```
 +------------------------------------------------------------------+
@@ -263,9 +289,16 @@
 +------------------------------------------------------------------+
 ```
 
+</details>
+
 ---
 
 ## 7. Application Form Page
+
+![Application Form Wireframe](diagrams/ui_07_application_form.png)
+
+<details>
+<summary>Text representation</summary>
 
 ```
 +------------------------------------------------------------------+
@@ -299,6 +332,8 @@
 |                |   +------------------------------------------+  |
 +------------------------------------------------------------------+
 ```
+
+</details>
 
 ---
 
@@ -375,6 +410,11 @@
 
 ## 10. Reports Page
 
+![Reports Page Wireframe](diagrams/ui_10_reports.png)
+
+<details>
+<summary>Text representation</summary>
+
 ```
 +------------------------------------------------------------------+
 |  [Logo]  Online Campus Info       Welcome, John!  [Logout]        |
@@ -404,9 +444,16 @@
 +------------------------------------------------------------------+
 ```
 
+</details>
+
 ---
 
 ## 11. Raise Query Page (Student)
+
+![Raise Query Wireframe](diagrams/ui_11_raise_query.png)
+
+<details>
+<summary>Text representation</summary>
 
 ```
 +------------------------------------------------------------------+
@@ -434,9 +481,16 @@
 +------------------------------------------------------------------+
 ```
 
+</details>
+
 ---
 
 ## 12. Feedback Form Page (Student)
+
+![Feedback Form Wireframe](diagrams/ui_12_feedback_form.png)
+
+<details>
+<summary>Text representation</summary>
 
 ```
 +------------------------------------------------------------------+
@@ -465,6 +519,8 @@
 |                |   +------------------------------------------+  |
 +------------------------------------------------------------------+
 ```
+
+</details>
 
 ---
 
