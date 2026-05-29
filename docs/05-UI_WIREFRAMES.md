@@ -2,6 +2,11 @@
 
 ## Page Map Overview
 
+![UI Page Map](diagrams/ui_00_page_map.png)
+
+<details>
+<summary>Text representation</summary>
+
 ```
                             +------------------+
                             |    Home Page     |
@@ -38,9 +43,16 @@
     +-- View Reports
 ```
 
+</details>
+
 ---
 
 ## 1. Home Page
+
+![Home Page Wireframe](diagrams/ui_01_home.png)
+
+<details>
+<summary>Text representation</summary>
 
 ```
 +------------------------------------------------------------------+
@@ -67,6 +79,8 @@
 |  [Footer: About | Contact | Privacy Policy]                       |
 +------------------------------------------------------------------+
 ```
+
+</details>
 
 ---
 
@@ -139,6 +153,11 @@
 
 ## 4. Student Dashboard
 
+![Student Dashboard Wireframe](diagrams/ui_04_student_dashboard.png)
+
+<details>
+<summary>Text representation</summary>
+
 ```
 +------------------------------------------------------------------+
 |  [Logo]  Online Campus Info       Welcome, John!  [Logout]        |
@@ -162,6 +181,8 @@
 |                |                                                  |
 +------------------------------------------------------------------+
 ```
+
+</details>
 
 ---
 
@@ -283,6 +304,11 @@
 
 ## 8. Admin Dashboard
 
+![Admin Dashboard Wireframe](diagrams/ui_08_admin_dashboard.png)
+
+<details>
+<summary>Text representation</summary>
+
 ```
 +------------------------------------------------------------------+
 |  [Logo]  Online Campus Info       Welcome, Admin!  [Logout]       |
@@ -308,9 +334,16 @@
 +------------------------------------------------------------------+
 ```
 
+</details>
+
 ---
 
 ## 9. Counsellor Dashboard
+
+![Counsellor Dashboard Wireframe](diagrams/ui_09_counsellor_dashboard.png)
+
+<details>
+<summary>Text representation</summary>
 
 ```
 +------------------------------------------------------------------+
@@ -335,6 +368,8 @@
 |                |   +------------------------------------------+  |
 +------------------------------------------------------------------+
 ```
+
+</details>
 
 ---
 

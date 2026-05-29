@@ -2,6 +2,11 @@
 
 ## 1. High-Level Architecture
 
+![High-Level Architecture](diagrams/arch_01_high_level.png)
+
+<details>
+<summary>Text representation</summary>
+
 ```
 +-------------------------------------------------------------------+
 |                        CLIENT LAYER                                 |
@@ -49,9 +54,16 @@
 +-------------------------------------------------------------------+
 ```
 
+</details>
+
 ---
 
 ## 2. Application Architecture Pattern - Layered (N-Tier)
+
+![N-Tier Architecture](diagrams/arch_02_ntier.png)
+
+<details>
+<summary>Text representation</summary>
 
 ```
 +----------------------------------------+
@@ -85,9 +97,16 @@
 +----------------------------------------+
 ```
 
+</details>
+
 ---
 
 ## 3. Authentication and Authorization Flow
+
+![Authentication Flow](diagrams/arch_03_auth_flow.png)
+
+<details>
+<summary>Text representation</summary>
 
 ```
 Student/Admin/Counsellor
@@ -124,6 +143,8 @@ Student/Admin/Counsellor
         v
    Protected Endpoints
 ```
+
+</details>
 
 ### Role-Based Access Control (RBAC)
 
@@ -318,6 +339,12 @@ frontend/src/
 - Axios interceptors for automatic token attachment and error handling
 
 ### Data Flow Example (Student Applies to College)
+
+![Data Flow — Student Applies to College](diagrams/arch_05_data_flow.png)
+
+<details>
+<summary>Text representation</summary>
+
 ```
 1. Student fills ApplicationForm.jsx
 2. Form calls applicationApi.submitApplication(data)
@@ -329,6 +356,8 @@ frontend/src/
 8. Response sent back through layers
 9. Frontend updates UI with success/error
 ```
+
+</details>
 
 ---
 
@@ -346,6 +375,11 @@ frontend/src/
 ---
 
 ## 8. File Upload Architecture
+
+![File Upload Architecture](diagrams/arch_04_file_upload.png)
+
+<details>
+<summary>Text representation</summary>
 
 ```
 Client (React)
@@ -366,6 +400,8 @@ Store path in Database (College/Facility record)
     v
 Client displays images
 ```
+
+</details>
 
 ---
 
