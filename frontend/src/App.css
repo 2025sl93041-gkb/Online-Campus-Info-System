@@ -238,13 +238,18 @@ body {
 }
 
 .hero-actions .btn-secondary {
-  border-color: white;
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid white;
   color: white;
+  backdrop-filter: blur(4px);
 }
 
 .hero-actions .btn-secondary:hover {
   background: white;
   color: #1976d2;
+  border-color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .features-section h2 {
