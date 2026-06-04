@@ -17,6 +17,9 @@ const ManageColleges = () => {
   const [imageFile, setImageFile] = useState(null);
   const [imageCaption, setImageCaption] = useState('');
   const [uploadMsg, setUploadMsg] = useState('');
+  const [addingCourseFor, setAddingCourseFor] = useState(null);
+  const [courseData, setCourseData] = useState({ name: '', department: '', duration: '4 years', degreeType: 'B.Tech', eligibilityCriteria: '', totalSeats: '', fee: '', description: '' });
+  const [courseMsg, setCourseMsg] = useState('');
 
   useEffect(() => {
     loadColleges();
@@ -199,6 +202,7 @@ const ManageColleges = () => {
               <div className="college-card-header">
                 <h3>{college.name}</h3>
                 <div className="card-actions">
+                  <button onClick={() => { setAddingCourseFor(addingCourseFor === college.id ? null : college.id); setCourseMsg(''); }} className="btn-edit">📚 Add Course</button>
                   <button onClick={() => setUploadingFor(uploadingFor === college.id ? null : college.id)} className="btn-edit">📷 Upload Image</button>
                   <button onClick={() => handleEdit(college)} className="btn-edit">Edit</button>
                   <button onClick={() => handleDelete(college.id)} className="btn-delete">Delete</button>
@@ -209,6 +213,71 @@ const ManageColleges = () => {
                 {college.establishedYear && <span>Est. {college.establishedYear}</span>}
                 {college.strength && <span>👥 {college.strength}</span>}
               </div>
+
+              {addingCourseFor === college.id && (
+                <div className="upload-section">
+                  <h4>Add New Course</h4>
+                  {courseMsg && <div className={courseMsg.includes('success') ? 'success-msg' : 'error-msg'}>{courseMsg}</div>}
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>Course Name *</label>
+                      <input type="text" value={courseData.name} onChange={(e) => setCourseData({...courseData, name: e.target.value})} placeholder="e.g., B.Tech Computer Science" required />
+                    </div>
+                    <div className="form-group">
+                      <label>Department</label>
+                      <input type="text" value={courseData.department} onChange={(e) => setCourseData({...courseData, department: e.target.value})} placeholder="e.g., CSE, ECE, ME" />
+                    </div>
+                  </div>
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>Duration</label>
+                      <select value={courseData.duration} onChange={(e) => setCourseData({...courseData, duration: e.target.value})}>
+                        <option value="4 years">4 years</option>
+                        <option value="3 years">3 years</option>
+                        <option value="2 years">2 years</option>
+                      </select>
+                    </div>
+                    <div className="form-group">
+                      <label>Degree Type</label>
+                      <select value={courseData.degreeType} onChange={(e) => setCourseData({...courseData, degreeType: e.target.value})}>
+                        <option value="B.Tech">B.Tech</option>
+                        <option value="M.Tech">M.Tech</option>
+                        <option value="MCA">MCA</option>
+                        <option value="BCA">BCA</option>
+                        <option value="MBA">MBA</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>Total Seats</label>
+                      <input type="number" value={courseData.totalSeats} onChange={(e) => setCourseData({...courseData, totalSeats: e.target.value})} placeholder="60" />
+                    </div>
+                    <div className="form-group">
+                      <label>Fee (per year)</label>
+                      <input type="number" value={courseData.fee} onChange={(e) => setCourseData({...courseData, fee: e.target.value})} placeholder="85000" />
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <label>Eligibility Criteria</label>
+                    <input type="text" value={courseData.eligibilityCriteria} onChange={(e) => setCourseData({...courseData, eligibilityCriteria: e.target.value})} placeholder="e.g., 60% in 12th with PCM" />
+                  </div>
+                  <div className="form-group">
+                    <label>Description</label>
+                    <input type="text" value={courseData.description} onChange={(e) => setCourseData({...courseData, description: e.target.value})} placeholder="Brief about the course" />
+                  </div>
+                  <button onClick={async () => {
+                    if (!courseData.name) { setCourseMsg('Course name is required'); return; }
+                    setCourseMsg('Adding...');
+                    try {
+                      await collegeApi.addCourse(college.id, { ...courseData, totalSeats: courseData.totalSeats ? parseInt(courseData.totalSeats) : null, fee: courseData.fee ? parseFloat(courseData.fee) : null });
+                      setCourseMsg('Course added successfully!');
+                      setCourseData({ name: '', department: '', duration: '4 years', degreeType: 'B.Tech', eligibilityCriteria: '', totalSeats: '', fee: '', description: '' });
+                      setTimeout(() => { setAddingCourseFor(null); setCourseMsg(''); }, 2000);
+                    } catch (err) { setCourseMsg(err.response?.data?.message || 'Failed to add course'); }
+                  }} className="btn-primary">Add Course</button>
+                </div>
+              )}
 
               {uploadingFor === college.id && (
                 <div className="upload-section">
