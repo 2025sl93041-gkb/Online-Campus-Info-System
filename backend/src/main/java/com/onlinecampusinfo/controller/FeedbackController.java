@@ -55,6 +55,15 @@ public class FeedbackController {
         return ResponseEntity.ok(feedbacks.stream().map(this::mapFeedbackToResponse).collect(Collectors.toList()));
     }
 
+    // New endpoint for counsellors to get feedback received about them
+    @GetMapping("/my-received")
+    @PreAuthorize("hasRole('COUNSELLOR')")
+    public ResponseEntity<List<Map<String, Object>>> getMyReceivedFeedbacks() {
+        User counsellor = authService.getCurrentUser();
+        List<Feedback> feedbacks = feedbackService.getCounsellorFeedbacks(counsellor.getId());
+        return ResponseEntity.ok(feedbacks.stream().map(this::mapFeedbackToResponse).collect(Collectors.toList()));
+    }
+
     private Map<String, Object> mapFeedbackToResponse(Feedback feedback) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", feedback.getId());

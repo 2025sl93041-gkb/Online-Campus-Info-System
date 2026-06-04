@@ -16,6 +16,7 @@ import ManageColleges from './pages/admin/ManageColleges';
 import ViewApplications from './pages/admin/ViewApplications';
 import CounsellorDashboard from './pages/counsellor/CounsellorDashboard';
 import ViewQueries from './pages/counsellor/ViewQueries';
+import MyFeedback from './pages/counsellor/MyFeedback';
 import BrowseColleges from './pages/BrowseColleges';
 import CollegeDetailPage from './pages/CollegeDetailPage';
 import ReportsPage from './pages/ReportsPage';
@@ -52,6 +53,7 @@ function App() {
               {/* Counsellor Routes */}
               <Route path="/counsellor/dashboard" element={<ProtectedRoute roles={['COUNSELLOR']}><CounsellorDashboard /></ProtectedRoute>} />
               <Route path="/counsellor/queries" element={<ProtectedRoute roles={['COUNSELLOR']}><ViewQueries /></ProtectedRoute>} />
+              <Route path="/counsellor/feedback" element={<ProtectedRoute roles={['COUNSELLOR']}><MyFeedback /></ProtectedRoute>} />
 
               {/* Reports (accessible to all authenticated users) */}
               <Route path="/reports" element={<ProtectedRoute roles={['STUDENT', 'ADMIN', 'COUNSELLOR']}><ReportsPage /></ProtectedRoute>} />

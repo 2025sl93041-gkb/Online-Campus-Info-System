@@ -13,6 +13,10 @@ const CounsellorDashboard = () => {
           <h3>💬 View Queries</h3>
           <p>Respond to student queries</p>
         </Link>
+        <Link to="/counsellor/feedback" className="dashboard-card">
+          <h3>📝 My Feedback</h3>
+          <p>View feedback from students</p>
+        </Link>
         <Link to="/reports" className="dashboard-card">
           <h3>📊 Reports</h3>
           <p>View feedback and statistics</p>
