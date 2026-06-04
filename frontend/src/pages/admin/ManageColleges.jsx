@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { collegeApi } from '../../api/collegeApi';
+import { fileApi } from '../../api/fileApi';
 
 const ManageColleges = () => {
   const [colleges, setColleges] = useState([]);
@@ -12,6 +13,10 @@ const ManageColleges = () => {
     establishedYear: '', strength: '', website: '', contactEmail: '', contactPhone: ''
   });
   const [error, setError] = useState('');
+  const [uploadingFor, setUploadingFor] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
+  const [imageCaption, setImageCaption] = useState('');
+  const [uploadMsg, setUploadMsg] = useState('');
 
   useEffect(() => {
     loadColleges();
@@ -86,6 +91,26 @@ const ManageColleges = () => {
       loadColleges();
     } catch (err) {
       alert(err.response?.data?.message || 'Delete failed');
+    }
+  };
+
+  const handleImageUpload = async (collegeId) => {
+    if (!imageFile) {
+      setUploadMsg('Please select a file first');
+      return;
+    }
+    setUploadMsg('Uploading...');
+    try {
+      await fileApi.uploadImage(imageFile, collegeId, imageCaption, '');
+      setUploadMsg('Image uploaded successfully!');
+      setImageFile(null);
+      setImageCaption('');
+      setTimeout(() => {
+        setUploadingFor(null);
+        setUploadMsg('');
+      }, 2000);
+    } catch (err) {
+      setUploadMsg(err.response?.data?.message || 'Upload failed');
     }
   };
 
@@ -174,6 +199,7 @@ const ManageColleges = () => {
               <div className="college-card-header">
                 <h3>{college.name}</h3>
                 <div className="card-actions">
+                  <button onClick={() => setUploadingFor(uploadingFor === college.id ? null : college.id)} className="btn-edit">📷 Upload Image</button>
                   <button onClick={() => handleEdit(college)} className="btn-edit">Edit</button>
                   <button onClick={() => handleDelete(college.id)} className="btn-delete">Delete</button>
                 </div>
@@ -183,6 +209,23 @@ const ManageColleges = () => {
                 {college.establishedYear && <span>Est. {college.establishedYear}</span>}
                 {college.strength && <span>👥 {college.strength}</span>}
               </div>
+
+              {uploadingFor === college.id && (
+                <div className="upload-section">
+                  <h4>Upload Facility Image</h4>
+                  {uploadMsg && <div className={uploadMsg.includes('success') ? 'success-msg' : 'error-msg'}>{uploadMsg}</div>}
+                  <div className="form-group">
+                    <label>Select Image</label>
+                    <input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files[0])} />
+                  </div>
+                  <div className="form-group">
+                    <label>Caption (optional)</label>
+                    <input type="text" value={imageCaption} onChange={(e) => setImageCaption(e.target.value)} placeholder="e.g., Computer Lab, Library" />
+                  </div>
+                  <button onClick={() => handleImageUpload(college.id)} className="btn-primary">Upload</button>
+                </div>
+              )}
+
               <Link to={`/colleges/${college.id}`} className="btn-secondary">View Details</Link>
             </div>
           ))}

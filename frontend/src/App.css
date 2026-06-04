@@ -879,6 +879,27 @@ body {
   min-width: 30px;
 }
 
+/* Upload Section */
+.upload-section {
+  margin-top: 12px;
+  padding: 16px;
+  background: #f0f7ff;
+  border: 1px dashed #1976d2;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.upload-section h4 {
+  color: #1976d2;
+  margin-bottom: 12px;
+}
+
+.upload-section .btn-primary {
+  width: auto;
+  padding: 8px 20px;
+  margin-top: 8px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .navbar {
