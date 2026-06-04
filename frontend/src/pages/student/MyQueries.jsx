@@ -72,6 +72,7 @@ const MyQueries = () => {
               {q.status === 'RESOLVED' && (
                 <button onClick={() => handleClose(q.id)} className="btn-secondary">Close Query</button>
               )}
+              <button onClick={async () => { if(window.confirm('Delete this query?')){ try { await queryApi.deleteQuery(q.id); loadQueries(); } catch(e){ alert('Failed to delete'); }}}} className="btn-delete">Delete</button>
             </div>
           ))}
         </div>

@@ -75,6 +75,18 @@ public class QueryController {
         return ResponseEntity.ok(mapQueryToResponse(query));
     }
 
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<?> deleteQuery(@PathVariable Long id) {
+        User student = authService.getCurrentUser();
+        Query query = queryService.getQueryById(id);
+        if (!query.getStudent().getId().equals(student.getId())) {
+            return ResponseEntity.status(403).body(new MessageResponse("You can only delete your own queries"));
+        }
+        queryService.deleteQuery(id);
+        return ResponseEntity.ok(new MessageResponse("Query deleted successfully"));
+    }
+
     private Map<String, Object> mapQueryToResponse(Query query) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", query.getId());

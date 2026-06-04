@@ -64,6 +64,18 @@ public class ApplicationController {
         return ResponseEntity.ok(mapApplicationToResponse(application));
     }
 
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<?> withdrawApplication(@PathVariable Long id) {
+        User student = authService.getCurrentUser();
+        Application app = applicationService.getApplicationById(id);
+        if (!app.getStudent().getId().equals(student.getId())) {
+            return ResponseEntity.status(403).body(new MessageResponse("You can only withdraw your own applications"));
+        }
+        applicationService.deleteApplication(id);
+        return ResponseEntity.ok(new MessageResponse("Application withdrawn successfully"));
+    }
+
     @PutMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestBody Map<String, String> body) {

@@ -96,4 +96,9 @@ public class QueryService {
         query.setStatus(QueryStatus.CLOSED);
         return queryRepository.save(query);
     }
+
+    @Transactional
+    public void deleteQuery(Long id) {
+        queryRepository.deleteById(id);
+    }
 }

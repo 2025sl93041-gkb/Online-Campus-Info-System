@@ -53,6 +53,9 @@ const MyApplications = () => {
               <p><strong>Applied on:</strong> {new Date(app.appliedAt).toLocaleDateString()}</p>
               {app.qualification && <p><strong>Qualification:</strong> {app.qualification}</p>}
               {app.percentage && <p><strong>Percentage:</strong> {app.percentage}%</p>}
+              {app.status === 'PENDING' && (
+                <button onClick={async () => { if(window.confirm('Withdraw this application?')){ try { await applicationApi.withdrawApplication(app.id); loadApplications(); } catch(e){ alert('Failed to withdraw'); }}}} className="btn-delete">Withdraw Application</button>
+              )}
             </div>
           ))}
         </div>

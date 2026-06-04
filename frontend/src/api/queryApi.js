@@ -5,6 +5,7 @@ export const queryApi = {
   raiseQuery: (data) => api.post('/queries', data),
   getMyQueries: () => api.get('/queries/my'),
   closeQuery: (id) => api.put(`/queries/${id}/close`),
+  deleteQuery: (id) => api.delete(`/queries/${id}`),
 
   // Counsellor
   getAssignedQueries: () => api.get('/queries/assigned'),

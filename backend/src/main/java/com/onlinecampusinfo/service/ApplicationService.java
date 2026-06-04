@@ -73,4 +73,9 @@ public class ApplicationService {
         application.setStatus(status);
         return applicationRepository.save(application);
     }
+
+    @Transactional
+    public void deleteApplication(Long id) {
+        applicationRepository.deleteById(id);
+    }
 }
