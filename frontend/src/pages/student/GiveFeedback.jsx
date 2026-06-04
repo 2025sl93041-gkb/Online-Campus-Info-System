@@ -1,15 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { feedbackApi } from '../../api/feedbackApi';
 import { collegeApi } from '../../api/collegeApi';
 
 const GiveFeedback = () => {
-  const navigate = useNavigate();
   const [colleges, setColleges] = useState([]);
   const [formData, setFormData] = useState({
-    type: 'COLLEGE',
     collegeId: '',
-    counsellorId: '',
     rating: 5,
     comment: '',
   });
@@ -21,10 +17,6 @@ const GiveFeedback = () => {
     collegeApi.getAllColleges().then(res => setColleges(res.data)).catch(() => {});
   }, []);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -32,16 +24,15 @@ const GiveFeedback = () => {
     setSubmitting(true);
 
     try {
-      const payload = {
-        type: formData.type,
+      await feedbackApi.submitFeedback({
+        type: 'COLLEGE',
         rating: parseInt(formData.rating),
         comment: formData.comment,
-        collegeId: formData.type === 'COLLEGE' && formData.collegeId ? parseInt(formData.collegeId) : null,
-        counsellorId: formData.type === 'COUNSELLOR' && formData.counsellorId ? parseInt(formData.counsellorId) : null,
-      };
-      await feedbackApi.submitFeedback(payload);
+        collegeId: formData.collegeId ? parseInt(formData.collegeId) : null,
+        counsellorId: null,
+      });
       setSuccess('Feedback submitted successfully!');
-      setFormData({ type: 'COLLEGE', collegeId: '', counsellorId: '', rating: 5, comment: '' });
+      setFormData({ collegeId: '', rating: 5, comment: '' });
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to submit feedback');
     } finally {
@@ -51,7 +42,8 @@ const GiveFeedback = () => {
 
   return (
     <div className="give-feedback">
-      <h1>Give Feedback</h1>
+      <h1>Give College Feedback</h1>
+      <p style={{color:'#666', marginBottom:'16px'}}>To rate a counsellor, go to "My Queries" and click "⭐ Rate Counsellor" on resolved queries.</p>
 
       {success && <div className="success-msg">{success}</div>}
       {error && <div className="error-msg">{error}</div>}
@@ -59,29 +51,12 @@ const GiveFeedback = () => {
       <div className="form-card">
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Feedback Type *</label>
-            <select name="type" value={formData.type} onChange={handleChange}>
-              <option value="COLLEGE">College Feedback</option>
-              <option value="COUNSELLOR">Counsellor Feedback</option>
+            <label>Select College *</label>
+            <select name="collegeId" value={formData.collegeId} onChange={(e) => setFormData({...formData, collegeId: e.target.value})} required>
+              <option value="">-- Select College --</option>
+              {colleges.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </div>
-
-          {formData.type === 'COLLEGE' && (
-            <div className="form-group">
-              <label>Select College *</label>
-              <select name="collegeId" value={formData.collegeId} onChange={handleChange} required>
-                <option value="">-- Select College --</option>
-                {colleges.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
-            </div>
-          )}
-
-          {formData.type === 'COUNSELLOR' && (
-            <div className="form-group">
-              <label>Counsellor ID</label>
-              <input type="number" name="counsellorId" value={formData.counsellorId} onChange={handleChange} placeholder="Enter counsellor ID" required />
-            </div>
-          )}
 
           <div className="form-group">
             <label>Rating * (1-5)</label>
@@ -101,11 +76,11 @@ const GiveFeedback = () => {
 
           <div className="form-group">
             <label>Comments</label>
-            <textarea name="comment" value={formData.comment} onChange={handleChange} rows="4" placeholder="Share your experience..." />
+            <textarea name="comment" value={formData.comment} onChange={(e) => setFormData({...formData, comment: e.target.value})} rows="4" placeholder="Share your experience about this college..." />
           </div>
 
           <button type="submit" className="btn-primary" disabled={submitting}>
-            {submitting ? 'Submitting...' : 'Submit Feedback'}
+            {submitting ? 'Submitting...' : 'Submit College Feedback'}
           </button>
         </form>
       </div>

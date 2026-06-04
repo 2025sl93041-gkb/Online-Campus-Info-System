@@ -70,7 +70,19 @@ const MyQueries = () => {
               )}
 
               {q.status === 'RESOLVED' && (
-                <button onClick={() => handleClose(q.id)} className="btn-secondary">Close Query</button>
+                <>
+                  <button onClick={() => handleClose(q.id)} className="btn-secondary">Close Query</button>
+                  <button onClick={async () => {
+                    const rating = prompt('Rate this counsellor (1-5):');
+                    if (!rating || isNaN(rating) || rating < 1 || rating > 5) { alert('Please enter a valid rating 1-5'); return; }
+                    const comment = prompt('Any comments? (optional)') || '';
+                    try {
+                      const { feedbackApi } = await import('../../api/feedbackApi');
+                      await feedbackApi.submitFeedback({ type: 'COUNSELLOR', counsellorId: q.counsellorId, rating: parseInt(rating), comment });
+                      alert('Feedback submitted! Thank you.');
+                    } catch(e) { alert('Failed to submit feedback'); }
+                  }} className="btn-accept">⭐ Rate Counsellor ({q.counsellorName})</button>
+                </>
               )}
               <button onClick={async () => { if(window.confirm('Delete this query?')){ try { await queryApi.deleteQuery(q.id); loadQueries(); } catch(e){ alert('Failed to delete'); }}}} className="btn-delete">Delete</button>
             </div>
