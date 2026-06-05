@@ -640,3 +640,31 @@ A: First time you run the app, tables are created. After that, register users vi
 This demonstrates the **end-to-end flow** from UI → API → Database.
 
 ---
+
+
+---
+
+## 13. RECENT ENHANCEMENTS
+
+For detailed documentation on the latest features (College Image Display, Counsellor Assignment System, Modal Feedback UI, Immutable Statistics, Role-Based Reports, Enhanced Admin Application Management), see:
+
+**[`docs/08-RECENT_ENHANCEMENTS.md`](./08-RECENT_ENHANCEMENTS.md)**
+
+### Quick Summary
+
+- **College Images:** Now display correctly with gallery, thumbnails, and placeholder fallback
+- **Counsellor Assignments:** Admin can assign counsellors to up to 3 colleges; queries auto-route based on college
+- **Modal Feedback:** Star-rating modal replaces browser prompt for counsellor feedback
+- **Immutable Stats:** Counsellor performance metrics persist even when student deletes resolved query
+- **Role-Based Reports:** Different tabs visible to Student/Counsellor/Admin
+- **Admin Applications:** Default shows ALL applications; college and status filters available
+
+### New Tables (Total: 10)
+
+- `counsellor_assignments` - counsellor → college mapping
+- `counsellor_performance_log` - immutable history of resolved queries
+
+### New Pages
+
+- **Admin:** `/admin/counsellors` (Manage Counsellors)
+- **Reports:** Now has tabbed interface based on role
