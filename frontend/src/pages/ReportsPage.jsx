@@ -26,12 +26,13 @@ const ReportsPage = () => {
           newData.counsellors = p.data;
           newData.stats = s.data;
         }
-        if (isCounsellor && user?.id) {
-          try {
-            const m = await reportApi.getMyPerformance(user.id);
-            newData.myPerf = m.data;
-          } catch (e) {}
-        }
+      const counsellorId = user?.userId || user?.id;
+      if (isCounsellor && counsellorId) {
+        try {
+          const m = await reportApi.getMyPerformance(counsellorId);
+          setData(prev => ({ ...prev, myPerf: m.data }));
+        } catch (e) { console.error('Failed to load my performance:', e); }
+      }
         setData(newData);
       } finally { setLoading(false); }
     };
