@@ -405,3 +405,238 @@ npm run dev
 
 **Test Accounts:**
 - Create via Register page or check database
+
+---
+
+## 12. DATABASE GUIDE 📊
+
+### 12.1 Where is the Database?
+
+The database is **NOT in the project folder**. It's stored in **MySQL Server** running on your machine.
+
+**Database Configuration File:** `backend/src/main/resources/application.properties`
+
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/campus_info_db
+spring.datasource.username=root
+spring.datasource.password=(empty)
+```
+
+**Key Info:**
+- **Database Type:** MySQL 8/9
+- **Database Name:** `campus_info_db`
+- **Host:** `localhost`
+- **Port:** `3306` (default MySQL port)
+- **Username:** `root`
+- **Password:** (empty)
+
+**Physical Location of MySQL Data:**
+```
+/opt/homebrew/var/mysql/campus_info_db/
+```
+(Don't access directly - always use SQL commands)
+
+### 12.2 Database Tables (8 total)
+
+```
+campus_info_db
+├── users               # All users (Students, Admins, Counsellors)
+├── colleges            # College information
+├── courses             # Courses offered by each college
+├── facilities          # Facilities (Library, Lab, Hostel, etc.)
+├── college_images      # Images for each college
+├── applications        # Student applications to colleges
+├── queries             # Student queries to counsellors
+└── feedbacks           # Student feedback (for colleges & counsellors)
+```
+
+### 12.3 How to Check the Database - 4 Methods
+
+#### **METHOD 1: Command Line MySQL Shell**
+
+```bash
+# Connect to database
+mysql -u root campus_info_db
+```
+
+Once inside, useful commands:
+```sql
+SHOW TABLES;              -- See all tables
+DESCRIBE users;           -- See structure of users table
+SELECT * FROM users;      -- See all users
+SELECT * FROM colleges;   -- See all colleges
+exit                      -- Exit
+```
+
+#### **METHOD 2: One-line Commands (Quick & Easy)**
+```bash
+# View all tables
+mysql -u root campus_info_db -e "SHOW TABLES;"
+
+# View all users
+mysql -u root campus_info_db -e "SELECT id, name, email, role FROM users;"
+
+# View all colleges
+mysql -u root campus_info_db -e "SELECT id, name, city, state FROM colleges;"
+
+# View all applications
+mysql -u root campus_info_db -e "SELECT * FROM applications;"
+
+# View all queries
+mysql -u root campus_info_db -e "SELECT id, subject, status FROM queries;"
+
+# View all feedbacks
+mysql -u root campus_info_db -e "SELECT * FROM feedbacks;"
+
+# Count records
+mysql -u root campus_info_db -e "SELECT COUNT(*) FROM users;"
+```
+
+#### **METHOD 3: GUI Tools (Best for Demo!)**
+
+**Option A: MySQL Workbench (Free)**
+- Download: https://dev.mysql.com/downloads/workbench/
+- Connect: Host=`localhost`, Port=`3306`, User=`root`, Password=(empty)
+- Browse `campus_info_db` → See all tables visually
+
+**Option B: TablePlus (Mac)**
+```bash
+brew install --cask tableplus
+```
+
+**Option C: DBeaver (Free, Cross-platform)**
+```bash
+brew install --cask dbeaver-community
+```
+
+#### **METHOD 4: VS Code Extension**
+Install "MySQL" extension by Jun Han or "SQLTools" extension to view database directly in VS Code.
+
+### 12.4 Useful SQL Queries for Demo
+
+**Show all users with roles:**
+```sql
+SELECT id, name, email, role FROM users;
+```
+
+**Show all colleges:**
+```sql
+SELECT id, name, city, state, established_year FROM colleges;
+```
+
+**Show applications with student & college names (JOIN):**
+```sql
+SELECT a.id, u.name AS student, c.name AS college, a.status 
+FROM applications a 
+JOIN users u ON a.student_id = u.id 
+JOIN colleges c ON a.college_id = c.id;
+```
+
+**Show queries with counsellor info:**
+```sql
+SELECT q.id, q.subject, q.status, 
+       s.name AS student, c.name AS counsellor 
+FROM queries q 
+JOIN users s ON q.student_id = s.id 
+LEFT JOIN users c ON q.counsellor_id = c.id;
+```
+
+**Count users by role:**
+```sql
+SELECT role, COUNT(*) FROM users GROUP BY role;
+```
+
+**Show recent feedbacks:**
+```sql
+SELECT f.id, f.type, f.rating, f.comment, u.name AS student 
+FROM feedbacks f 
+JOIN users u ON f.student_id = u.id 
+ORDER BY f.created_at DESC;
+```
+
+### 12.5 How Tables Are Created
+
+**Auto-creation by Hibernate:**
+The line in `application.properties`:
+```properties
+spring.jpa.hibernate.ddl-auto=update
+```
+
+This tells Hibernate to:
+- **Auto-create tables** when app starts (if they don't exist)
+- **Update schema** when you change Entity classes
+- **Never delete data** (only adds new columns/tables)
+
+**This is why you didn't manually create tables!** Hibernate reads your `@Entity` classes and creates corresponding tables.
+
+### 12.6 Data Flow: From UI to Database
+
+**When user registers:**
+```
+Frontend Form 
+  → POST /api/auth/register 
+  → AuthController 
+  → AuthService.register() 
+  → UserRepository.save(user) 
+  → Hibernate generates: 
+     INSERT INTO users (name, email, password, role) VALUES (...)
+  → Data saved to MySQL ✅
+```
+
+**When fetching colleges:**
+```
+Browse Colleges Page 
+  → GET /api/colleges
+  → CollegeController
+  → CollegeService.getAllColleges()
+  → CollegeRepository.findAll()
+  → Hibernate generates: SELECT * FROM colleges
+  → Data returned as JSON ✅
+```
+
+### 12.7 Database Demo Quick Cheat Sheet
+
+```bash
+# Connect to database
+mysql -u root campus_info_db
+
+# Inside MySQL
+SHOW TABLES;                          # List all tables
+DESC users;                           # Show table structure  
+SELECT * FROM users;                  # View all users
+SELECT * FROM colleges;               # View all colleges
+SELECT COUNT(*) FROM applications;    # Count records
+exit                                  # Quit
+```
+
+### 12.8 Common Database Questions
+
+**Q: Where is the database stored?**
+A: In MySQL server on localhost:3306, in a database called `campus_info_db`. Physical files are managed by MySQL.
+
+**Q: How do tables get created?**
+A: Hibernate auto-creates them based on `@Entity` annotated Java classes using `ddl-auto=update`.
+
+**Q: Do you write SQL queries?**
+A: No, we use Spring Data JPA - just call methods like `findAll()`, `findById()`, `save()`. Hibernate generates SQL automatically.
+
+**Q: How are passwords stored?**
+A: Hashed using BCryptPasswordEncoder. We never store plain passwords.
+
+**Q: What if database is empty?**
+A: First time you run the app, tables are created. After that, register users via UI to populate data.
+
+### 12.9 Demo Tip: Live Database Demonstration
+
+**Best way to impress your professor:**
+
+1. Open **MySQL Workbench** (or terminal) **side-by-side** with your app
+2. Show the empty/current `users` table
+3. Register a new user from the frontend
+4. Click "Refresh" in MySQL Workbench
+5. **Show the new entry appearing in real-time!**
+6. Repeat for applications, queries, etc.
+
+This demonstrates the **end-to-end flow** from UI → API → Database.
+
+---
