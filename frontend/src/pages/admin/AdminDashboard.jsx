@@ -13,13 +13,17 @@ const AdminDashboard = () => {
           <h3>🏫 Manage Colleges</h3>
           <p>Add, edit, and manage college information</p>
         </Link>
+        <Link to="/admin/counsellors" className="dashboard-card">
+          <h3>👨‍💼 Manage Counsellors</h3>
+          <p>Assign counsellors to colleges</p>
+        </Link>
         <Link to="/admin/applications" className="dashboard-card">
           <h3>📋 View Applications</h3>
           <p>Review student applications</p>
         </Link>
         <Link to="/reports" className="dashboard-card">
           <h3>📊 Reports</h3>
-          <p>View feedback and statistics</p>
+          <p>View comprehensive system reports</p>
         </Link>
       </div>
     </div>

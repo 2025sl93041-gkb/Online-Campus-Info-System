@@ -23,3 +23,16 @@ export const collegeApi = {
   addFacility: (collegeId, data) => api.post(`/colleges/${collegeId}/facilities`, data),
   deleteFacility: (id) => api.delete(`/facilities/${id}`),
 };
+
+export const counsellorAssignmentApi = {
+  // Admin
+  getAllCounsellorsWithAssignments: () => api.get('/counsellor-assignments/counsellors'),
+  assignCounsellor: (counsellorId, collegeId) => api.post('/counsellor-assignments', { counsellorId, collegeId }),
+  unassignCounsellor: (counsellorId, collegeId) => api.delete(`/counsellor-assignments?counsellorId=${counsellorId}&collegeId=${collegeId}`),
+  
+  // Counsellor
+  getMyAssignments: () => api.get('/counsellor-assignments/my'),
+  
+  // Public
+  getCounsellorsByCollege: (collegeId) => api.get(`/counsellor-assignments/by-college/${collegeId}`),
+};

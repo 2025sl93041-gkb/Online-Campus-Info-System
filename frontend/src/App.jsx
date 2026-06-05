@@ -13,6 +13,7 @@ import MyQueries from './pages/student/MyQueries';
 import GiveFeedback from './pages/student/GiveFeedback';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ManageColleges from './pages/admin/ManageColleges';
+import ManageCounsellors from './pages/admin/ManageCounsellors';
 import ViewApplications from './pages/admin/ViewApplications';
 import CounsellorDashboard from './pages/counsellor/CounsellorDashboard';
 import ViewQueries from './pages/counsellor/ViewQueries';
@@ -48,6 +49,7 @@ function App() {
               {/* Admin Routes */}
               <Route path="/admin/dashboard" element={<ProtectedRoute roles={['ADMIN']}><AdminDashboard /></ProtectedRoute>} />
               <Route path="/admin/colleges" element={<ProtectedRoute roles={['ADMIN']}><ManageColleges /></ProtectedRoute>} />
+              <Route path="/admin/counsellors" element={<ProtectedRoute roles={['ADMIN']}><ManageCounsellors /></ProtectedRoute>} />
               <Route path="/admin/applications" element={<ProtectedRoute roles={['ADMIN']}><ViewApplications /></ProtectedRoute>} />
 
               {/* Counsellor Routes */}

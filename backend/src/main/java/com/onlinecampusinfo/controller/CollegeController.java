@@ -177,6 +177,12 @@ public class CollegeController {
         map.put("averageRating", collegeService.getAverageRating(college.getId()));
         map.put("totalFeedbacks", collegeService.getFeedbackCount(college.getId()));
         map.put("createdAt", college.getCreatedAt());
+        // Include thumbnail (first image) for list views
+        try {
+            if (college.getImages() != null && !college.getImages().isEmpty()) {
+                map.put("thumbnailUrl", college.getImages().get(0).getImageUrl());
+            }
+        } catch (Exception ignored) {}
         return map;
     }
 
@@ -188,6 +194,20 @@ public class CollegeController {
         map.put("facilities", college.getFacilities().stream()
                 .map(this::mapFacilityToResponse)
                 .collect(Collectors.toList()));
+        // Include all images for detail view
+        map.put("images", college.getImages().stream()
+                .map(this::mapImageToResponse)
+                .collect(Collectors.toList()));
+        return map;
+    }
+
+    private Map<String, Object> mapImageToResponse(com.onlinecampusinfo.model.CollegeImage image) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", image.getId());
+        map.put("imageUrl", image.getImageUrl());
+        map.put("caption", image.getCaption());
+        map.put("facilityType", image.getFacilityType());
+        map.put("createdAt", image.getCreatedAt());
         return map;
     }
 

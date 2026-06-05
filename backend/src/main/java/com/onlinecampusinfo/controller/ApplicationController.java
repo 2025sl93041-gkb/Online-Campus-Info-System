@@ -58,6 +58,27 @@ public class ApplicationController {
         return ResponseEntity.ok(response);
     }
 
+    // Get all applications for admin (across all their colleges)
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<Map<String, Object>>> getAllApplicationsForAdmin(
+            @RequestParam(required = false) Long collegeId) {
+        User admin = authService.getCurrentUser();
+        List<Application> applications = applicationService.getApplicationsByAdmin(admin.getId());
+
+        // Filter by college if provided
+        if (collegeId != null) {
+            applications = applications.stream()
+                    .filter(a -> a.getCollege().getId().equals(collegeId))
+                    .collect(Collectors.toList());
+        }
+
+        List<Map<String, Object>> response = applications.stream()
+                .map(this::mapApplicationToResponse)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> getApplicationById(@PathVariable Long id) {
         Application application = applicationService.getApplicationById(id);

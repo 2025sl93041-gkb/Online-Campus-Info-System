@@ -4,22 +4,20 @@ import { applicationApi } from '../../api/applicationApi';
 
 const ViewApplications = () => {
   const [colleges, setColleges] = useState([]);
-  const [selectedCollege, setSelectedCollege] = useState('');
+  const [selectedCollege, setSelectedCollege] = useState(''); // '' means show all
   const [applications, setApplications] = useState([]);
+  const [statusFilter, setStatusFilter] = useState('ALL');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     loadColleges();
+    loadApplications(''); // Load all applications by default
   }, []);
 
   const loadColleges = async () => {
     try {
       const response = await collegeApi.getMyColleges();
       setColleges(response.data);
-      if (response.data.length > 0) {
-        setSelectedCollege(response.data[0].id);
-        loadApplications(response.data[0].id);
-      }
     } catch (error) {
       console.error('Failed to load colleges:', error);
     }
@@ -28,10 +26,11 @@ const ViewApplications = () => {
   const loadApplications = async (collegeId) => {
     setLoading(true);
     try {
-      const response = await applicationApi.getApplicationsByCollege(collegeId);
+      const response = await applicationApi.getAllForAdmin(collegeId || null);
       setApplications(response.data);
     } catch (error) {
       console.error('Failed to load applications:', error);
+      setApplications([]);
     } finally {
       setLoading(false);
     }
@@ -61,30 +60,58 @@ const ViewApplications = () => {
     }
   };
 
+  // Filter by status (client-side)
+  const filteredApplications = statusFilter === 'ALL'
+    ? applications
+    : applications.filter(a => a.status === statusFilter);
+
   return (
     <div className="view-applications">
-      <h1>View Applications</h1>
+      <h1>📋 View Applications</h1>
+      <p className="subtitle">All applications across your colleges</p>
 
-      <div className="filter-bar">
-        <div className="form-group">
-          <label>Select College</label>
+      <div className="filter-bar" style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+        <div className="form-group" style={{ flex: 1, minWidth: '200px' }}>
+          <label>Filter by College</label>
           <select value={selectedCollege} onChange={handleCollegeChange}>
+            <option value="">🏫 All Colleges ({applications.length})</option>
             {colleges.map(college => (
               <option key={college.id} value={college.id}>{college.name}</option>
             ))}
           </select>
         </div>
+        <div className="form-group" style={{ flex: 1, minWidth: '200px' }}>
+          <label>Filter by Status</label>
+          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+            <option value="ALL">All Statuses</option>
+            <option value="PENDING">Pending</option>
+            <option value="UNDER_REVIEW">Under Review</option>
+            <option value="ACCEPTED">Accepted</option>
+            <option value="REJECTED">Rejected</option>
+          </select>
+        </div>
       </div>
+
+      {/* Stats summary */}
+      {applications.length > 0 && (
+        <div className="stats-summary" style={{ display: 'flex', gap: '12px', margin: '20px 0', flexWrap: 'wrap' }}>
+          <div className="stat-pill">Total: <strong>{applications.length}</strong></div>
+          <div className="stat-pill">Pending: <strong>{applications.filter(a => a.status === 'PENDING').length}</strong></div>
+          <div className="stat-pill">Under Review: <strong>{applications.filter(a => a.status === 'UNDER_REVIEW').length}</strong></div>
+          <div className="stat-pill">Accepted: <strong>{applications.filter(a => a.status === 'ACCEPTED').length}</strong></div>
+          <div className="stat-pill">Rejected: <strong>{applications.filter(a => a.status === 'REJECTED').length}</strong></div>
+        </div>
+      )}
 
       {loading ? (
         <div className="loading">Loading applications...</div>
-      ) : applications.length === 0 ? (
+      ) : filteredApplications.length === 0 ? (
         <div className="no-results">
-          <p>No applications received yet for this college.</p>
+          <p>No applications found {selectedCollege && 'for the selected college'}{statusFilter !== 'ALL' && ` with status: ${statusFilter}`}.</p>
         </div>
       ) : (
         <div className="applications-list">
-          {applications.map((app) => (
+          {filteredApplications.map((app) => (
             <div key={app.id} className="application-card">
               <div className="application-header">
                 <h3>{app.studentName}</h3>
@@ -92,13 +119,14 @@ const ViewApplications = () => {
                   {app.status}
                 </span>
               </div>
-              <p><strong>Course:</strong> {app.courseName}</p>
-              <p><strong>Email:</strong> {app.studentEmail}</p>
-              {app.studentPhone && <p><strong>Phone:</strong> {app.studentPhone}</p>}
-              {app.qualification && <p><strong>Qualification:</strong> {app.qualification}</p>}
-              {app.percentage && <p><strong>Percentage:</strong> {app.percentage}%</p>}
-              {app.statementOfPurpose && <p><strong>SOP:</strong> {app.statementOfPurpose}</p>}
-              <p><strong>Applied:</strong> {new Date(app.appliedAt).toLocaleDateString()}</p>
+              <p><strong>🏫 College:</strong> {app.collegeName}</p>
+              <p><strong>📚 Course:</strong> {app.courseName}</p>
+              <p><strong>📧 Email:</strong> {app.studentEmail}</p>
+              {app.studentPhone && <p><strong>📞 Phone:</strong> {app.studentPhone}</p>}
+              {app.qualification && <p><strong>🎓 Qualification:</strong> {app.qualification}</p>}
+              {app.percentage && <p><strong>📊 Percentage:</strong> {app.percentage}%</p>}
+              {app.statementOfPurpose && <p><strong>📝 SOP:</strong> {app.statementOfPurpose}</p>}
+              <p><strong>📅 Applied:</strong> {new Date(app.appliedAt).toLocaleDateString()}</p>
 
               {app.status === 'PENDING' && (
                 <div className="application-actions">
@@ -127,6 +155,23 @@ const ViewApplications = () => {
           ))}
         </div>
       )}
+
+      <style>{`
+        .stat-pill {
+          padding: 8px 16px;
+          background: #f0f2f5;
+          border-radius: 20px;
+          font-size: 14px;
+          color: #555;
+        }
+        .stat-pill strong {
+          color: #667eea;
+        }
+        .subtitle {
+          color: #666;
+          margin-bottom: 20px;
+        }
+      `}</style>
     </div>
   );
 };

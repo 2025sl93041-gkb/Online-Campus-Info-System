@@ -59,6 +59,19 @@ public class ApplicationService {
         return applicationRepository.findByCollegeId(collegeId);
     }
 
+    public List<Application> getAllApplications() {
+        return applicationRepository.findAll();
+    }
+
+    public List<Application> getApplicationsByAdmin(Long adminId) {
+        // Get applications for all colleges owned by this admin
+        List<College> myColleges = collegeRepository.findByAdminId(adminId);
+        return applicationRepository.findAll().stream()
+                .filter(app -> myColleges.stream()
+                        .anyMatch(c -> c.getId().equals(app.getCollege().getId())))
+                .collect(java.util.stream.Collectors.toList());
+    }
+
     public Application getApplicationById(Long id) {
         return applicationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Application not found"));
