@@ -18,6 +18,7 @@ const ReportsPage = () => {
           reportApi.getCollegeFeedbacksDetailed().catch(() => ({ data: [] })),
         ]);
         const newData = { comparison: c1.data, feedbacks: c2.data, counsellors: [], myPerf: null, stats: null };
+
         if (isAdmin) {
           const [p, s] = await Promise.all([
             reportApi.getCounsellorPerformance().catch(() => ({ data: [] })),
@@ -26,15 +27,21 @@ const ReportsPage = () => {
           newData.counsellors = p.data;
           newData.stats = s.data;
         }
-      const counsellorId = user?.userId || user?.id;
-      if (isCounsellor && counsellorId) {
-        try {
-          const m = await reportApi.getMyPerformance(counsellorId);
-          setData(prev => ({ ...prev, myPerf: m.data }));
-        } catch (e) { console.error('Failed to load my performance:', e); }
-      }
+
+        const counsellorId = user?.userId || user?.id;
+        if (isCounsellor && counsellorId) {
+          try {
+            const m = await reportApi.getMyPerformance(counsellorId);
+            newData.myPerf = m.data;
+          } catch (e) {
+            console.error('Failed to load my performance:', e);
+          }
+        }
+
         setData(newData);
-      } finally { setLoading(false); }
+      } finally {
+        setLoading(false);
+      }
     };
     load();
   }, []);
@@ -71,7 +78,10 @@ const ReportsPage = () => {
 
       {tab === 'comparison' && <ComparisonTab data={data.comparison} isAdmin={isAdmin} />}
       {tab === 'feedbacks' && <FeedbacksTab data={data.feedbacks} renderFB={renderFB} />}
-      {tab === 'me' && isCounsellor && data.myPerf && <MyPerfTab data={data.myPerf} renderFB={renderFB} />}
+      {tab === 'me' && isCounsellor && (data.myPerf
+        ? <MyPerfTab data={data.myPerf} renderFB={renderFB} />
+        : <div className="report-section"><h2>🎯 My Performance</h2><p className="no-results">Loading your performance data... If this stays empty, you may not have any data yet (no resolved queries or feedback received).</p></div>
+      )}
       {tab === 'cnsl' && isAdmin && <CounsellorsTab data={data.counsellors} renderFB={renderFB} />}
       {tab === 'stats' && isAdmin && data.stats && <StatsTab stats={data.stats} />}
     </div>
