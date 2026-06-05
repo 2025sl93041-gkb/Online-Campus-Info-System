@@ -1,10 +1,10 @@
 # 🎓 Online Campus Info System - Complete Demo Guide
 
 ## Quick Overview
-**What is it?** A full-stack web app for students to explore colleges, apply, raise queries, and give feedback.
+**What is it?** A full-stack web app for students to explore colleges, apply, raise queries to college-assigned counsellors, and provide feedback.
 
 **Tech Stack:**
-- **Backend:** Java 17 + Spring Boot 3.4 + MySQL + JWT
+- **Backend:** Java 17/21 + Spring Boot 3.4 + MySQL + JWT
 - **Frontend:** React 19 + Vite + React Router + Axios
 
 ---
@@ -28,7 +28,7 @@ OnlineCampusInfo/
 └── frontend/                   # React (Vite)
     └── src/
         ├── api/                # Axios API calls
-        ├── components/         # Reusable components
+        ├── components/         # Reusable components (FeedbackModal, etc.)
         ├── context/            # AuthContext (state)
         └── pages/              # Page components
 ```
@@ -37,17 +37,28 @@ OnlineCampusInfo/
 
 ## 2. USER ROLES & FEATURES
 
-| Role | Features |
-|------|----------|
-| **STUDENT** | Register, Login, Browse colleges, Apply, Raise queries, Give feedback |
-| **ADMIN** | Manage colleges (CRUD), Add courses/facilities, View applications |
-| **COUNSELLOR** | View & respond to queries, View feedback received |
+| Feature | STUDENT | ADMIN | COUNSELLOR |
+|---------|:-------:|:-----:|:----------:|
+| Browse colleges (with images) | ✅ | ✅ | ✅ |
+| Apply to colleges | ✅ | ❌ | ❌ |
+| Raise queries (per college) | ✅ | ❌ | ❌ |
+| Give college feedback | ✅ | ❌ | ❌ |
+| Rate counsellor (modal UI) | ✅ | ❌ | ❌ |
+| Manage colleges (CRUD + images) | ❌ | ✅ | ❌ |
+| Manage Counsellors (assign to colleges) | ❌ | ✅ | ❌ |
+| View applications (with filters) | ❌ | ✅ | ❌ |
+| Approve/reject applications | ❌ | ✅ | ❌ |
+| Respond to queries (only assigned colleges) | ❌ | ❌ | ✅ |
+| View own performance metrics | ❌ | ❌ | ✅ |
+| College comparison & reviews | ✅ | ✅ | ✅ |
+| Counsellor performance reports | ❌ | ✅ | ❌ |
+| System statistics | ❌ | ✅ | ❌ |
 
 ---
 
-## 3. BACKEND ARCHITECTURE (Spring Boot)
+## 3. BACKEND ARCHITECTURE
 
-### 3.1 Layers
+### Layers
 ```
 Controller → Service → Repository → Database
     ↑           ↑           ↑
@@ -55,45 +66,37 @@ Controller → Service → Repository → Database
    APIs       Logic
 ```
 
-### 3.2 Controllers (7 total)
-| Controller | Endpoints | Purpose |
-|------------|-----------|---------|
-| AuthController | `/api/auth/*` | Login, Register |
-| CollegeController | `/api/colleges/*` | CRUD colleges |
-| ApplicationController | `/api/applications/*` | Student applications |
-| QueryController | `/api/queries/*` | Student queries |
-| FeedbackController | `/api/feedbacks/*` | Feedback system |
-| FileController | `/api/files/*` | File uploads |
-| ReportController | `/api/reports/*` | Statistics |
+### Controllers (8)
+- AuthController, CollegeController, ApplicationController, QueryController
+- FeedbackController, FileController, ReportController, CounsellorAssignmentController
 
-### 3.3 Services (5 total)
-- **AuthService** - Authentication & user management
-- **CollegeService** - College CRUD operations
-- **ApplicationService** - Application processing
-- **QueryService** - Query management
-- **FeedbackService** - Feedback handling
+### Services (6)
+- AuthService, CollegeService, ApplicationService, QueryService
+- FeedbackService, CounsellorAssignmentService
 
-### 3.4 Repositories (7 total)
-All extend `JpaRepository<Entity, Long>`:
-- UserRepository, CollegeRepository, CourseRepository
-- FacilityRepository, ApplicationRepository, QueryRepository, FeedbackRepository
+### Repositories (9) - All extend `JpaRepository<Entity, Long>`
+- UserRepository, CollegeRepository, CourseRepository, FacilityRepository
+- ApplicationRepository, QueryRepository, FeedbackRepository
+- CounsellorAssignmentRepository, CounsellorPerformanceRepository
 
-### 3.5 Models/Entities (8 total)
-| Entity | Fields |
-|--------|--------|
-| User | id, name, email, password, role |
-| College | id, name, description, city, state, establishedYear |
-| Course | id, name, duration, fees, college |
-| Facility | id, type, description, college |
-| Application | id, student, college, course, status |
-| Query | id, student, counsellor, subject, message, status |
-| Feedback | id, student, type, rating, comment, college/counsellor |
-| CollegeImage | id, url, college |
+### Entities (10)
+| Entity | Purpose |
+|--------|---------|
+| User | Users with roles (STUDENT/ADMIN/COUNSELLOR) |
+| College | College info (name, city, etc.) |
+| Course | Courses offered by colleges |
+| Facility | College facilities (lab, library, etc.) |
+| CollegeImage | Uploaded college images |
+| Application | Student applications |
+| Query | Student queries (linked to college) |
+| Feedback | Ratings & comments (college or counsellor) |
+| CounsellorAssignment | Counsellor↔College mapping |
+| CounsellorPerformance | Immutable resolved-query history log |
 
-### 3.6 Enums
-```java
+### Enums
+```
 UserRole: STUDENT, ADMIN, COUNSELLOR
-ApplicationStatus: PENDING, APPROVED, REJECTED, WITHDRAWN
+ApplicationStatus: PENDING, UNDER_REVIEW, ACCEPTED, REJECTED, WITHDRAWN
 QueryStatus: OPEN, IN_PROGRESS, RESOLVED, CLOSED
 FeedbackType: COLLEGE, COUNSELLOR
 FacilityType: LIBRARY, LAB, HOSTEL, SPORTS, CAFETERIA, WIFI, TRANSPORT
@@ -103,7 +106,7 @@ FacilityType: LIBRARY, LAB, HOSTEL, SPORTS, CAFETERIA, WIFI, TRANSPORT
 
 ## 4. SECURITY & JWT AUTHENTICATION
 
-### 4.1 How JWT Works
+### How JWT Works
 ```
 1. User logs in with email/password
 2. Server validates credentials
@@ -113,105 +116,72 @@ FacilityType: LIBRARY, LAB, HOSTEL, SPORTS, CAFETERIA, WIFI, TRANSPORT
 6. Server validates token before processing request
 ```
 
-### 4.2 Security Classes
-| Class | Purpose |
-|-------|---------|
-| **JwtTokenProvider** | Generate & validate JWT tokens |
-| **JwtAuthenticationFilter** | Intercept requests, extract & validate JWT |
-| **JwtAuthenticationEntryPoint** | Handle unauthorized access (401) |
-| **CustomUserDetailsService** | Load user from database |
-| **CustomUserDetails** | Wrapper around User entity |
-| **SecurityConfig** | Configure security rules |
+### Security Classes
+- **JwtTokenProvider** - Generates & validates JWT tokens
+- **JwtAuthenticationFilter** - Intercepts requests, extracts & validates JWT
+- **JwtAuthenticationEntryPoint** - Handles unauthorized access (401)
+- **CustomUserDetailsService** - Loads user from database
+- **SecurityConfig** - Configures security rules
 
-### 4.3 SecurityConfig Rules
-```java
-// Public endpoints (no auth required)
-/api/auth/** → permitAll()
-GET /api/colleges/** → permitAll()
-GET /api/courses/** → permitAll()
-GET /api/files/** → permitAll()
-GET /api/feedbacks/college/** → permitAll()
+### SecurityConfig Rules
+```
+Public:
+  /api/auth/**           → permitAll
+  GET /api/colleges/**   → permitAll
+  GET /api/files/**      → permitAll
 
-// All other requests require authentication
-anyRequest() → authenticated()
+All others:
+  Require valid JWT token
 ```
 
-### 4.4 Role-Based Authorization
-Using `@PreAuthorize` annotation:
-```java
-@PreAuthorize("hasRole('STUDENT')")  // Only students
-@PreAuthorize("hasRole('ADMIN')")    // Only admins
-@PreAuthorize("hasRole('COUNSELLOR')") // Only counsellors
-```
+### Role-Based Authorization (multi-layer)
+1. JWT authentication verifies user identity
+2. `@PreAuthorize("hasRole('STUDENT')")` on controllers checks role
+3. Service-layer checks (e.g., counsellor assigned to college)
+4. Frontend `ProtectedRoute` for client-side guards
 
 ---
 
-## 5. FRONTEND ARCHITECTURE (React)
+## 5. FRONTEND ARCHITECTURE
 
-### 5.1 Key Files
-| File | Purpose |
-|------|---------|
-| `main.jsx` | Entry point, renders App |
-| `App.jsx` | Routes configuration |
-| `AuthContext.jsx` | Global auth state |
-| `axiosConfig.js` | Axios instance with interceptors |
+### Key Files
+- `App.jsx` - All routes
+- `AuthContext.jsx` - Global auth state
+- `axiosConfig.js` - HTTP client with interceptors
+- `components/common/FeedbackModal.jsx` - Reusable modal with star rating
+- `components/common/ProtectedRoute.jsx` - Route guard
 
-### 5.2 Routing (App.jsx)
-```jsx
-// Public Routes
-/ → HomePage
-/login → LoginPage
-/register → RegisterPage
-/colleges → BrowseColleges
-/colleges/:id → CollegeDetailPage
+### Routing (App.jsx)
+```
+Public:
+  /                     → HomePage
+  /login, /register     → Auth pages
+  /colleges             → BrowseColleges
+  /colleges/:id         → CollegeDetailPage (with image gallery)
 
-// Student Routes (Protected)
-/student/dashboard → StudentDashboard
-/student/applications → MyApplications
-/student/queries → MyQueries
-/student/feedback → GiveFeedback
+Student (Protected):
+  /student/dashboard, /student/apply/:id, /student/applications
+  /student/raise-query, /student/queries (modal feedback), /student/feedback
 
-// Admin Routes (Protected)
-/admin/dashboard → AdminDashboard
-/admin/colleges → ManageColleges
-/admin/applications → ViewApplications
+Admin (Protected):
+  /admin/dashboard, /admin/colleges
+  /admin/counsellors    (assignment UI)
+  /admin/applications   (all + filters)
 
-// Counsellor Routes (Protected)
-/counsellor/dashboard → CounsellorDashboard
-/counsellor/queries → ViewQueries
-/counsellor/feedback → MyFeedback
+Counsellor (Protected):
+  /counsellor/dashboard, /counsellor/queries (filtered by assigned colleges)
+  /counsellor/feedback
+
+Reports (role-based content):
+  /reports
 ```
 
-### 5.3 ProtectedRoute Component
-```jsx
-// Checks if user is logged in and has required role
-<ProtectedRoute roles={['STUDENT']}>
-  <StudentDashboard />
-</ProtectedRoute>
-```
+### AuthContext
+Provides globally: `user`, `token`, `login()`, `logout()`, `isAuthenticated()`, `hasRole()`
 
-### 5.4 AuthContext (State Management)
-```jsx
-// Provides globally:
-- user (current user object)
-- token (JWT)
-- login(credentials) → calls API, stores token
-- logout() → clears token
-- isAuthenticated() → checks if logged in
-- hasRole(role) → checks user role
-```
-
-### 5.5 Axios Interceptors
-```javascript
-// Request interceptor - adds JWT token to every request
-config.headers.Authorization = `Bearer ${token}`
-
-// Response interceptor - handles 401 errors
-if (error.status === 401) {
-  localStorage.removeItem('token')
-  localStorage.removeItem('user')
-}
-```
+### Axios Interceptors
+- Request: Adds `Authorization: Bearer <token>` to every request
+- Response: Clears localStorage on 401 errors
 
 ---
 
@@ -220,451 +190,230 @@ if (error.status === 401) {
 ### Authentication
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/auth/register` | Register new user |
-| POST | `/api/auth/login` | Login, get JWT token |
+| POST | `/api/auth/register` | Register |
+| POST | `/api/auth/login` | Login, get JWT |
 
 ### Colleges
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/colleges` | List all colleges |
-| GET | `/api/colleges/{id}` | Get college details |
+| GET | `/api/colleges` | List colleges (with thumbnailUrl) |
+| GET | `/api/colleges/{id}` | College details (with images[]) |
 | POST | `/api/colleges` | Create college (Admin) |
-| PUT | `/api/colleges/{id}` | Update college (Admin) |
-| DELETE | `/api/colleges/{id}` | Delete college (Admin) |
+| PUT | `/api/colleges/{id}` | Update (Admin) |
+| DELETE | `/api/colleges/{id}` | Delete (Admin) |
+| POST | `/api/files/upload` | Upload image (Admin) |
 
 ### Applications
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/applications` | Submit application (Student) |
+| POST | `/api/applications` | Submit (Student) |
 | GET | `/api/applications/my` | My applications (Student) |
-| GET | `/api/applications` | All applications (Admin) |
+| GET | `/api/applications/all?collegeId=X` | All apps + filter (Admin) |
 | PUT | `/api/applications/{id}/status` | Update status (Admin) |
 | DELETE | `/api/applications/{id}` | Withdraw (Student) |
 
 ### Queries
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/queries` | Raise query (Student) |
+| POST | `/api/queries` | Raise query (auto-routed) |
 | GET | `/api/queries/my` | My queries (Student) |
-| GET | `/api/queries/assigned` | Assigned queries (Counsellor) |
-| PUT | `/api/queries/{id}/respond` | Respond to query (Counsellor) |
-| DELETE | `/api/queries/{id}` | Delete query (Student) |
+| GET | `/api/queries/assigned` | Filtered by my colleges (Counsellor) |
+| PUT | `/api/queries/{id}/respond` | Respond (assigned counsellor only) |
+| DELETE | `/api/queries/{id}` | Delete (Student) |
 
 ### Feedbacks
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/feedbacks` | Submit feedback (Student) |
-| GET | `/api/feedbacks/college/{id}` | College feedbacks |
+| POST | `/api/feedbacks` | Submit (Student) |
+| GET | `/api/feedbacks/college/{id}` | Public college feedbacks |
 | GET | `/api/feedbacks/my-received` | My received feedback (Counsellor) |
 
+### Counsellor Assignments
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/counsellor-assignments/counsellors` | All with assignments (Admin) |
+| POST | `/api/counsellor-assignments` | Assign (Admin) |
+| DELETE | `/api/counsellor-assignments?counsellorId=X&collegeId=Y` | Unassign (Admin) |
+| GET | `/api/counsellor-assignments/my` | My assignments (Counsellor) |
+
+### Reports
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/reports/college-comparison` | College ratings |
+| GET | `/api/reports/college-feedbacks` | Reviews with comments |
+| GET | `/api/reports/counsellor-performance` | All counsellors (Admin) |
+| GET | `/api/reports/my-performance?counsellorId=X` | Self-view (Counsellor) |
+| GET | `/api/reports/application-stats` | System stats (Admin) |
+
 ---
 
-## 7. DATABASE DESIGN
+## 7. KEY BUSINESS LOGIC
 
-### Tables
+### Query Routing (College-Based)
+When a student raises a query for a college:
+1. System looks up counsellors assigned to that college
+2. If found → routes to one with **least active queries**
+3. If no counsellor assigned → query stays unassigned (admin must assign first)
+
+When a counsellor views queries:
+- Only sees queries for colleges they're assigned to (plus general queries with no college)
+
+When a counsellor responds:
+- System verifies they're assigned to that query's college, else error
+
+**Configuration:** `app.counsellor.max-colleges=3` in `application.properties`
+
+### Immutable Counsellor Statistics
+- When a counsellor resolves a query → entry added to `counsellor_performance_log`
+- Log entries are NEVER deleted, even if the original query is removed.
+- Reports use this log for accurate historical metrics.
+
+### Role-Based Reports
+| Tab | Student | Counsellor | Admin |
+|-----|:-------:|:----------:|:-----:|
+| College Comparison | YES | YES | YES |
+| College Reviews (with comments) | YES | YES | YES |
+| My Performance | NO | YES | NO |
+| Counsellor Performance | NO | NO | YES |
+| System Stats | NO | NO | YES |
+
+---
+
+## 8. DATABASE
+
+### Configuration
+File: `backend/src/main/resources/application.properties`
+```
+spring.datasource.url=jdbc:mysql://localhost:3306/campus_info_db
+spring.datasource.username=root
+spring.datasource.password=
+spring.jpa.hibernate.ddl-auto=update
+```
+
+### Tables (10 total)
 - users, colleges, courses, facilities, college_images
 - applications, queries, feedbacks
+- counsellor_assignments
+- counsellor_performance_log
 
-### Key Relationships
-```
-User (1) ←→ (N) Application
-User (1) ←→ (N) Query (as student)
-User (1) ←→ (N) Query (as counsellor)
-User (1) ←→ (N) Feedback (as student)
-User (1) ←→ (N) Feedback (as counsellor target)
-College (1) ←→ (N) Course
-College (1) ←→ (N) Facility
-College (1) ←→ (N) Application
-College (1) ←→ (N) Feedback
-```
+### Auto-Creation
+Hibernate (ddl-auto=update) automatically creates and updates tables based on @Entity classes.
 
----
+### How to Check Data
+```bash
+# Connect to database
+mysql -u root campus_info_db
 
-## 8. KEY CODE EXPLANATIONS
-
-### 8.1 JWT Token Generation
-```java
-// JwtTokenProvider.java
-public String generateToken(Authentication auth) {
-    return Jwts.builder()
-        .setSubject(email)
-        .setIssuedAt(new Date())
-        .setExpiration(new Date(System.currentTimeMillis() + 86400000)) // 24 hours
-        .signWith(secretKey)
-        .compact();
-}
-```
-
-### 8.2 JWT Filter
-```java
-// JwtAuthenticationFilter.java
-// For every request:
-1. Extract token from "Authorization: Bearer <token>"
-2. Validate token signature and expiration
-3. Load user from database
-4. Set authentication in SecurityContext
-```
-
-### 8.3 Entity with JPA
-```java
-@Entity
-@Table(name = "users")
-public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    
-    @Column(unique = true)
-    private String email;
-    
-    @Enumerated(EnumType.STRING)
-    private UserRole role;
-}
-```
-
-### 8.4 Repository Query
-```java
-public interface UserRepository extends JpaRepository<User, Long> {
-    Optional<User> findByEmail(String email);
-    boolean existsByEmail(String email);
-}
-```
-
-### 8.5 React Hook (useAuth)
-```jsx
-const { user, login, logout, isAuthenticated } = useAuth();
+# Useful queries
+SHOW TABLES;
+SELECT id, name, email, role FROM users;
+SELECT * FROM counsellor_assignments;
+SELECT * FROM counsellor_performance_log;
 ```
 
 ---
 
-## 9. COMMON INTERVIEW QUESTIONS
+## 9. COMMON DEMO QUESTIONS
 
 **Q: Why Spring Boot over plain Spring?**
 A: Auto-configuration, embedded server, starter dependencies, production-ready features.
 
 **Q: Why JWT over sessions?**
-A: Stateless (scalable), no server storage, works well with REST APIs, contains claims.
+A: Stateless (scalable), no server storage, works well with REST APIs.
 
-**Q: What is JPA?**
-A: Java Persistence API - specification for ORM. Hibernate is the implementation.
+**Q: How does query routing work?**
+A: Queries are routed only to counsellors assigned to that college. If no counsellor is assigned, the query stays unassigned until an admin assigns one.
 
-**Q: What is @Transactional?**
-A: Ensures database operations are atomic (all succeed or all rollback).
+**Q: Why a separate performance log table?**
+A: Data integrity. Once a counsellor resolves a query, that fact must persist even if the student deletes the original query.
 
-**Q: Why React Context over Redux?**
-A: Simpler for small apps, built-in React feature, no extra dependencies.
+**Q: How is access controlled?**
+A: Multi-layer: JWT authentication, @PreAuthorize on controllers, service-layer college-assignment checks, frontend ProtectedRoute.
 
-**Q: How does ProtectedRoute work?**
-A: Checks if user is authenticated and has required role; redirects to login if not.
-
-**Q: What is Axios interceptor?**
-A: Middleware that runs before every request (add token) or after every response (handle errors).
-
-**Q: CORS error - what is it?**
-A: Browser security preventing cross-origin requests. Solved by configuring CORS in backend.
+**Q: What is JPA / Hibernate?**
+A: JPA is the Java Persistence API specification. Hibernate is the most popular implementation, doing the actual SQL work.
 
 **Q: What is BCrypt?**
-A: Password hashing algorithm. Never store plain passwords.
+A: Password hashing algorithm. We never store plain text passwords.
 
-**Q: What is @RestController?**
-A: Combines @Controller + @ResponseBody. Returns JSON directly.
-
----
-
-## 10. DEMO FLOW
-
-1. **Show Home Page** - Public landing page
-2. **Register as Student** - Show form validation
-3. **Login** - Show JWT in localStorage
-4. **Browse Colleges** - Public endpoint
-5. **Apply to College** - Protected, student only
-6. **Raise Query** - Student feature
-7. **Login as Counsellor** - Different role
-8. **Respond to Query** - Counsellor feature
-9. **Login as Admin** - Third role
-10. **Manage Colleges** - Admin CRUD
-11. **View Reports** - Statistics
+**Q: How does CORS work?**
+A: Cross-Origin Resource Sharing - browser security feature. Configured in SecurityConfig to allow localhost:*.
 
 ---
 
-## 11. HOW TO RUN
+## 10. HOW TO RUN
 
+### Prerequisites
+- MySQL running on localhost:3306
+- Java 21 (or 17+) installed
+- Node.js + npm installed
+
+### Backend (Terminal 1)
 ```bash
-# Terminal 1 - Backend
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/sapmachine-21.jdk/Contents/Home
 cd backend
 mvn spring-boot:run
+```
+Backend runs on **http://localhost:8080**
 
-# Terminal 2 - Frontend
+### Frontend (Terminal 2)
+```bash
 cd frontend
+npm install
 npm run dev
 ```
+Frontend runs on **http://localhost:5173**
 
-**URLs:**
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:8080
+### Stop
+Press Ctrl+C in each terminal.
 
-**Test Accounts:**
-- Create via Register page or check database
+If port 8080 is busy:
+```bash
+lsof -ti :8080 | xargs kill -9
+```
 
 ---
 
-## 12. DATABASE GUIDE 📊
+## 11. DEMO FLOW
 
-### 12.1 Where is the Database?
+1. Open http://localhost:5173
+2. Register/Login as 3 roles (Student, Admin, Counsellor)
 
-The database is **NOT in the project folder**. It's stored in **MySQL Server** running on your machine.
+### As Admin:
+- Manage Colleges: Add a college, upload images
+- Manage Counsellors: Assign counsellors to colleges (max 3 per counsellor)
+- View Applications: See all + filter by college/status
+- Reports: View counsellor performance & system stats
 
-**Database Configuration File:** `backend/src/main/resources/application.properties`
+### As Student:
+- Browse Colleges: See college image gallery
+- Apply to a college
+- Raise Query for an assigned college (auto-routed to assigned counsellor)
+- My Queries: Click "Rate Counsellor" - modal opens with star rating
+- Reports: See College Comparison & Reviews
 
-```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/campus_info_db
-spring.datasource.username=root
-spring.datasource.password=(empty)
-```
-
-**Key Info:**
-- **Database Type:** MySQL 8/9
-- **Database Name:** `campus_info_db`
-- **Host:** `localhost`
-- **Port:** `3306` (default MySQL port)
-- **Username:** `root`
-- **Password:** (empty)
-
-**Physical Location of MySQL Data:**
-```
-/opt/homebrew/var/mysql/campus_info_db/
-```
-(Don't access directly - always use SQL commands)
-
-### 12.2 Database Tables (8 total)
-
-```
-campus_info_db
-├── users               # All users (Students, Admins, Counsellors)
-├── colleges            # College information
-├── courses             # Courses offered by each college
-├── facilities          # Facilities (Library, Lab, Hostel, etc.)
-├── college_images      # Images for each college
-├── applications        # Student applications to colleges
-├── queries             # Student queries to counsellors
-└── feedbacks           # Student feedback (for colleges & counsellors)
-```
-
-### 12.3 How to Check the Database - 4 Methods
-
-#### **METHOD 1: Command Line MySQL Shell**
-
-```bash
-# Connect to database
-mysql -u root campus_info_db
-```
-
-Once inside, useful commands:
-```sql
-SHOW TABLES;              -- See all tables
-DESCRIBE users;           -- See structure of users table
-SELECT * FROM users;      -- See all users
-SELECT * FROM colleges;   -- See all colleges
-exit                      -- Exit
-```
-
-#### **METHOD 2: One-line Commands (Quick & Easy)**
-```bash
-# View all tables
-mysql -u root campus_info_db -e "SHOW TABLES;"
-
-# View all users
-mysql -u root campus_info_db -e "SELECT id, name, email, role FROM users;"
-
-# View all colleges
-mysql -u root campus_info_db -e "SELECT id, name, city, state FROM colleges;"
-
-# View all applications
-mysql -u root campus_info_db -e "SELECT * FROM applications;"
-
-# View all queries
-mysql -u root campus_info_db -e "SELECT id, subject, status FROM queries;"
-
-# View all feedbacks
-mysql -u root campus_info_db -e "SELECT * FROM feedbacks;"
-
-# Count records
-mysql -u root campus_info_db -e "SELECT COUNT(*) FROM users;"
-```
-
-#### **METHOD 3: GUI Tools (Best for Demo!)**
-
-**Option A: MySQL Workbench (Free)**
-- Download: https://dev.mysql.com/downloads/workbench/
-- Connect: Host=`localhost`, Port=`3306`, User=`root`, Password=(empty)
-- Browse `campus_info_db` → See all tables visually
-
-**Option B: TablePlus (Mac)**
-```bash
-brew install --cask tableplus
-```
-
-**Option C: DBeaver (Free, Cross-platform)**
-```bash
-brew install --cask dbeaver-community
-```
-
-#### **METHOD 4: VS Code Extension**
-Install "MySQL" extension by Jun Han or "SQLTools" extension to view database directly in VS Code.
-
-### 12.4 Useful SQL Queries for Demo
-
-**Show all users with roles:**
-```sql
-SELECT id, name, email, role FROM users;
-```
-
-**Show all colleges:**
-```sql
-SELECT id, name, city, state, established_year FROM colleges;
-```
-
-**Show applications with student & college names (JOIN):**
-```sql
-SELECT a.id, u.name AS student, c.name AS college, a.status 
-FROM applications a 
-JOIN users u ON a.student_id = u.id 
-JOIN colleges c ON a.college_id = c.id;
-```
-
-**Show queries with counsellor info:**
-```sql
-SELECT q.id, q.subject, q.status, 
-       s.name AS student, c.name AS counsellor 
-FROM queries q 
-JOIN users s ON q.student_id = s.id 
-LEFT JOIN users c ON q.counsellor_id = c.id;
-```
-
-**Count users by role:**
-```sql
-SELECT role, COUNT(*) FROM users GROUP BY role;
-```
-
-**Show recent feedbacks:**
-```sql
-SELECT f.id, f.type, f.rating, f.comment, u.name AS student 
-FROM feedbacks f 
-JOIN users u ON f.student_id = u.id 
-ORDER BY f.created_at DESC;
-```
-
-### 12.5 How Tables Are Created
-
-**Auto-creation by Hibernate:**
-The line in `application.properties`:
-```properties
-spring.jpa.hibernate.ddl-auto=update
-```
-
-This tells Hibernate to:
-- **Auto-create tables** when app starts (if they don't exist)
-- **Update schema** when you change Entity classes
-- **Never delete data** (only adds new columns/tables)
-
-**This is why you didn't manually create tables!** Hibernate reads your `@Entity` classes and creates corresponding tables.
-
-### 12.6 Data Flow: From UI to Database
-
-**When user registers:**
-```
-Frontend Form 
-  → POST /api/auth/register 
-  → AuthController 
-  → AuthService.register() 
-  → UserRepository.save(user) 
-  → Hibernate generates: 
-     INSERT INTO users (name, email, password, role) VALUES (...)
-  → Data saved to MySQL ✅
-```
-
-**When fetching colleges:**
-```
-Browse Colleges Page 
-  → GET /api/colleges
-  → CollegeController
-  → CollegeService.getAllColleges()
-  → CollegeRepository.findAll()
-  → Hibernate generates: SELECT * FROM colleges
-  → Data returned as JSON ✅
-```
-
-### 12.7 Database Demo Quick Cheat Sheet
-
-```bash
-# Connect to database
-mysql -u root campus_info_db
-
-# Inside MySQL
-SHOW TABLES;                          # List all tables
-DESC users;                           # Show table structure  
-SELECT * FROM users;                  # View all users
-SELECT * FROM colleges;               # View all colleges
-SELECT COUNT(*) FROM applications;    # Count records
-exit                                  # Quit
-```
-
-### 12.8 Common Database Questions
-
-**Q: Where is the database stored?**
-A: In MySQL server on localhost:3306, in a database called `campus_info_db`. Physical files are managed by MySQL.
-
-**Q: How do tables get created?**
-A: Hibernate auto-creates them based on `@Entity` annotated Java classes using `ddl-auto=update`.
-
-**Q: Do you write SQL queries?**
-A: No, we use Spring Data JPA - just call methods like `findAll()`, `findById()`, `save()`. Hibernate generates SQL automatically.
-
-**Q: How are passwords stored?**
-A: Hashed using BCryptPasswordEncoder. We never store plain passwords.
-
-**Q: What if database is empty?**
-A: First time you run the app, tables are created. After that, register users via UI to populate data.
-
-### 12.9 Demo Tip: Live Database Demonstration
-
-**Best way to impress your professor:**
-
-1. Open **MySQL Workbench** (or terminal) **side-by-side** with your app
-2. Show the empty/current `users` table
-3. Register a new user from the frontend
-4. Click "Refresh" in MySQL Workbench
-5. **Show the new entry appearing in real-time!**
-6. Repeat for applications, queries, etc.
-
-This demonstrates the **end-to-end flow** from UI → API → Database.
+### As Counsellor:
+- View Queries: Only sees queries for their assigned colleges
+- Respond to queries (verified at backend)
+- My Feedback: View student feedback received
+- Reports: See My Performance (immutable resolved count)
 
 ---
 
+## 12. FILE LOCATIONS QUICK REFERENCE
 
----
+### Backend
+- Application entry: backend/src/main/java/com/onlinecampusinfo/OnlineCampusInfoApplication.java
+- Config: backend/src/main/resources/application.properties
+- Security: backend/src/main/java/com/onlinecampusinfo/security/
+- Models: backend/src/main/java/com/onlinecampusinfo/model/
+- Controllers: backend/src/main/java/com/onlinecampusinfo/controller/
+- Services: backend/src/main/java/com/onlinecampusinfo/service/
+- Repositories: backend/src/main/java/com/onlinecampusinfo/repository/
 
-## 13. RECENT ENHANCEMENTS
-
-For detailed documentation on the latest features (College Image Display, Counsellor Assignment System, Modal Feedback UI, Immutable Statistics, Role-Based Reports, Enhanced Admin Application Management), see:
-
-**[`docs/08-RECENT_ENHANCEMENTS.md`](./08-RECENT_ENHANCEMENTS.md)**
-
-### Quick Summary
-
-- **College Images:** Now display correctly with gallery, thumbnails, and placeholder fallback
-- **Counsellor Assignments:** Admin can assign counsellors to up to 3 colleges; queries auto-route based on college
-- **Modal Feedback:** Star-rating modal replaces browser prompt for counsellor feedback
-- **Immutable Stats:** Counsellor performance metrics persist even when student deletes resolved query
-- **Role-Based Reports:** Different tabs visible to Student/Counsellor/Admin
-- **Admin Applications:** Default shows ALL applications; college and status filters available
-
-### New Tables (Total: 10)
-
-- `counsellor_assignments` - counsellor → college mapping
-- `counsellor_performance_log` - immutable history of resolved queries
-
-### New Pages
-
-- **Admin:** `/admin/counsellors` (Manage Counsellors)
-- **Reports:** Now has tabbed interface based on role
+### Frontend
+- Entry: frontend/src/main.jsx then frontend/src/App.jsx
+- API clients: frontend/src/api/
+- Pages: frontend/src/pages/{student,admin,counsellor}/
+- Components: frontend/src/components/common/
+- Auth state: frontend/src/context/AuthContext.jsx
