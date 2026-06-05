@@ -54,7 +54,7 @@ public class QueryService {
             query.setCollege(college);
         }
 
-        // Smart Assignment: Prioritize counsellors assigned to the specific college
+        // Smart Assignment: Route based on college assignment
         User assignedCounsellor = null;
 
         if (college != null) {
@@ -72,11 +72,11 @@ public class QueryService {
                     }
                 }
             }
-        }
-
-        // Fallback: If no college specified or no counsellor assigned to that college,
-        // assign to any available counsellor (legacy behavior)
-        if (assignedCounsellor == null) {
+            // If college has NO assigned counsellors, query remains unassigned
+            // (Admin should assign a counsellor to this college first)
+        } else {
+            // For general queries (no college specified):
+            // Try to find any counsellor (preference for those with no college restrictions or fewer queries)
             List<User> counsellors = userRepository.findByRole(UserRole.COUNSELLOR);
             if (!counsellors.isEmpty()) {
                 long minQueries = Long.MAX_VALUE;
@@ -99,7 +99,28 @@ public class QueryService {
     }
 
     public List<Query> getAssignedQueries(Long counsellorId) {
-        return queryRepository.findByCounsellorId(counsellorId);
+        // Get all queries assigned to this counsellor
+        List<Query> allAssigned = queryRepository.findByCounsellorId(counsellorId);
+
+        // Get the counsellor's assigned colleges
+        List<CounsellorAssignment> myAssignments = assignmentRepository.findByCounsellorId(counsellorId);
+
+        // If counsellor has NO college assignments, show all queries assigned to them (backward compatibility)
+        if (myAssignments.isEmpty()) {
+            return allAssigned;
+        }
+
+        // Get list of college IDs this counsellor is assigned to
+        java.util.Set<Long> assignedCollegeIds = myAssignments.stream()
+                .map(a -> a.getCollege().getId())
+                .collect(java.util.stream.Collectors.toSet());
+
+        // Filter: keep queries where:
+        // - Query has no college (general query) - show it
+        // - OR query's college is in counsellor's assigned colleges
+        return allAssigned.stream()
+                .filter(q -> q.getCollege() == null || assignedCollegeIds.contains(q.getCollege().getId()))
+                .collect(java.util.stream.Collectors.toList());
     }
 
     public Query getQueryById(Long id) {
